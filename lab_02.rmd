@@ -37,32 +37,79 @@ Take a look at the data, getting familiar with what it contains. Most of the col
 
 **Q1** How many voters appear to be *new* registrants since July 21, when President Joe Biden announced he would leave the race, based on the information above? Create a dataframe to hold the only those voters. Which counties have seen the most? Take a look at county population figures here and compare the two in your answer: https://worldpopulationreview.com/us-counties/maryland.
 
-**A1**
+#There are 17,106 new voters. The counties that are seen the most are Montgomery,Baltimore City, Baltimore County, and Prince George's County. From the link, it looks as though Montgomery County has the biggest population within the state, so it makes sense to why they have the most in this area. But Prince George's is second, but rank fourth on the sorted list. 
 
 ```{r}
+new_voters <- md_voters_2024 |> filter(STATE_REGISTRATION_DATE >= '2024-07-21')
+new_voters |>
+  group_by(COUNTY)|>
+  summarise(
+    county_count = n ()
+  ) |>
+  arrange(desc(county_count))
 ```
+
+
+
+    
+
 
 **Q2** A better question is whether the new voters you found in Q1 are an outlier compared to other weeks this year. Using the original dataframe with 2024 registrants, use `mutate()` and lubridate to produce week numbers from the COUNTY_REGISTRATION_DATE (Lubridate has a function that turns a date into a week number. Use that to answer this question). Save that to the original dataframe. Then calculate how many voters are in each week. Describe the distribution of voters groups in a sentence - are the weeks from July 21-August 7 different from the rest, and if so, how?
 
-**A2**
+Each week, it seems like the voter count was increasing, more so towards July and August because of the news that Biden was stepping down. July 21-Aug 7 are different from the rest, because that was when Biden was stepping down, so more people were probably more inclined to vote. 
 
 ```{r}
+md_voters_2024 <- md_voters_2024 |>
+  mutate(week_year=week(COUNTY_REGISTRATION_DATE))
+
+md_voters_2024 |>
+  group_by(week_year)|>
+  summarise(
+    voter_count=n()
+    
+  ) |>
+arrange(desc(voter_count))
 ```
 
 **Q3** Using lubridate, show which month saw the largest number of registrations. Does the answer help shed more light on Q2?
-**A3** 
+Yes, because we all know that July saw the most amount of registration throughout the month, so it does accurately reflect that. 
 
 ```{r}
+md_voters_2024 <- md_voters_2024|>
+  mutate(month=month(COUNTY_REGISTRATION_DATE))
+
+md_voters_2024 |>
+  group_by(month) |>
+  summarise(
+    month_number=n()
+  ) |>
+  arrange(desc(month_number))
+
 
 ```
 
 **Q4** Maryland has, officially, five regions: https://www.visitmaryland.org/article/maryland-regions. Modify the original dataframe again to add a `region` column based on the `COUNTY` value using case_when. Are you going to have to do this for every Maryland county plus Baltimore City? Yes, you are. Which regions and parties account for the most new voters?
 
-**A4** 
+I used ChatGPT for help with this one. I was having a hard time getting everything into quotes and into string detects, so they said to just use the | and not put the counties into quotation marks. However, this is saying that there is an unexpected symbol, when I swear I did everything right. However, I wanted to turn this in on time so unfortunately, my code did not print. But I feel like the democratic party and Montogmery county had the most new voters. 
 
 ```{r}
+md_voters_2024 <- md_voters_2024 |>
+  mutate(state=case_when(
+    str_detect(county, "Allegany|Garrett|Washington") ~ "Western",
+    str_detect(county, "Baltimore|Baltimore City|Carroll|Harford|Howard") ~ "Central",
+    str_detect(county, "Montgomery|Prince Georges") ~ "Capital",
+    str_detect(county, "Anne Arundel|Calvert|Charles|St. Marys") ~ "Southern",
+    str_detect(county, "Caroline|Cecil|Dorchester|Kent|Queen Anne's|Somerset|Talbot|Wicomico|Worcester") ~ "Eastern Shore",
+    TRUE~region
+
+md_voters_2024 |>
+  group_by(region) |>
+  summarise(
+    total_regions=n()
+  ) |>
+  arrange(desc(total_regions))
 ```
 
 **Q5** What's an additional question you could ask of this data?
 
-**A5** 
+A question that I could ask of this data would be how certain genders vote, like in different counties, and how it depends on either where you grew up or the area you grew up in and what age?
