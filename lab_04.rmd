@@ -1,0 +1,134 @@
+---
+title: "lab_04"
+author: "Derek Willis"
+date: "2024-09-19"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## About this lab
+
+To complete this lab, you need to: \* run existing code as directed (look for **Task**). \* modify existing code as directed (look for **Task**). \* write code in empty codeblocks provided to answer questions included (look for **Q**). \* write out the answer in the form of a complete sentence in the space given (look for **A**).
+
+When you are finished, commit changes and push to your personal GitHub repo, then submit the URL to this document on ELMS.
+
+## Load libraries and establish settings
+
+You'll need to load three packages for this: the tidyverse, lubridate and janitor.
+
+**Task** load these three packages.
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse. If you have not installed the tidyverse already, remove the # from the next line and run it first.  
+# install.packages('tidyverse')
+library(tidyverse)
+library(janitor)
+library(lubridate)
+
+```
+
+For this lab, we want to investigate spending by the two leading Senate candidates in Maryland during this election, Angela Alsobrooks and Larry Hogan. Our goal is to try and standardize the purpose of the expenditures so that we can compare the two campaigns. We have the data, but it's messy - purpose descriptions are spelled differently and capitalized differently - and we need to clean it up. We'll use a combination of RStudio and OpenRefine to do that.
+
+The basic process here is to start in RStudio, export data so that we can use OpenRefine to clean it up, and then bring it back into RStudio to finish our analysis.
+
+## Load Data
+
+You'll need to load one data set, a CSV file of campaign expenditures located in the data folder called "md_senate_expenses.csv"
+
+**Task** Create a codeblock below, then read the data in and assign it to an appropriate variable name. You'll want to make sure that any date columns are actually date datatypes.
+
+```{r}
+# Load the Maryland expenditures data table
+md_senate_expenses <- read_csv("data/md_senate_expenses.csv")
+library(readr)
+```
+
+## Answer questions
+
+**Q1.** You've been assigned to compare the spending priorities of the two campaigns, but they describe their spending differently using the `purpose` column. Using OpenRefine, create a project using the original CSV file, make a copy of the `purpose` column called `purpose_clean` and then standardize it, focusing on the purposes that appear most often or have the largest total amounts. You can transform the data as you want - making all records the same case, for example, to help. The goal is to be able to group together as many similar purpose values, so you can choose to call all transportation-related expenses the same thing.
+
+How do you know when you're done? It's a judgment call, but you should be close to 100 unique values for `purpose_clean`, and maybe even below that number.
+
+Then, when you are done standardizing `purpose_clean`, export it as a new CSV file to your data folder, *giving it a different name* and read it back into RStudio as a new dataframe.
+
+Then, using that `purpose_clean` column, write code to find the largest amounts of spending on categories by both campaigns.
+
+Largest amount of spending for Alsobrooks was media, while largest for Hogan was ads. To preferace, I did use ChatGPT to help me. It helped me with open refine to understand what to do, and then it told me to group by purpose clean and candidate with the new data set.
+
+```{r}
+library(dplyr)
+library(readr)
+
+largest_spending_data <- read_csv("data/new data.csv")
+top_spending <- largest_spending_data |>
+  group_by(purpose_clean, candidate) |>
+  summarise(total_amount = sum(amount, na.rm = TRUE)) |>
+  arrange(desc(total_amount))
+
+print(top_spending)
+```
+
+**Q2.** Let's do some research on the top purposes from A1. Feel free to search the Web to understand those terms better if need be, and then write a description comparing and contrasting the two campaigns' largest categories of spending.
+
+I read something from the Maryland reporter, and it spoke about how Angela tried to get her message across from radio, social media, and television. Her press secretary stated that people hear about news that way and that is why they did that. Meanwhile, Hogan's ads were just local radios, while Alsobrooks was national. It also stated that Hogan took up 750 minutes while Alsobrooks took up more than 3,000.
+
+**Q3.** Pick one of the top categories for each campaign and write code that shows how that spending has changed over time, if at all. You'll need to use lubridate for this. Write a couple of sentences describing that pattern. 
+
+To preferace again, I used ChatGPT to help me. What it told me to do was group it by media and ads because those were the top two categories. Then it said to mutate by date because we are trying to figure out the spending each month. So what it told me to do is group by the candidate which would be Alsobrooks and Hogan and summarise by how much each candidate spent per month. After I got this date, I can see for media for Alsobrooks, she spent the most amount on media in April. In May and June, it went down a tad, however she saw a big drop from October to November. She kept growing each month, but there was a drop in 2023. After, she increased in December and January, with her biggest month of money spent being in April. As far as Hogan, he really did not do much of his ad campaigning until 2024. He seemingly spent his most money in May. Besides a drop in June, he keeps increasing his money throughout his campaign. 
+
+```{r}
+media <- read_csv("data/new data.csv")
+media <- media |>
+  mutate(date = ymd(date))
+longing_media <- media |>
+  mutate(month = floor_date(date, "month")) |>
+  group_by(candidate, month) |>
+  summarise(total_media_spent = sum(amount, na.rm = TRUE)) |>
+  arrange(desc(month))
+print(longing_media)
+
+ads <- read_csv("data/new data.csv")
+ads <- ads |>
+  mutate(date = ymd(date))
+po_ads <- ads |>
+  mutate(month = floor_date(date, "month")) |>
+  group_by(candidate, month) |>
+  summarise(total_ads_spent = sum(amount, na.rm = TRUE)) |>
+  arrange(desc(total_ads_spent))
+print(po_ads)
+```
+
+**Q4.** Which committee has the larger payroll or salary spending so far? How many unique recipients of payroll/staff spending are there for each candidate?
+
+Alsobrooks has the most salary spending so far. I searched through the graph for this question, there are zero recipients for payroll for Hogan, while Alsobrooks has a few. I used ChatGPT to help set up this problem because it helped me understand what to summarise within the data and use n.distinct.
+
+```{r}
+total_spending <- largest_spending_data |>
+  group_by(candidate) |>
+  summarise(total_spending = sum(amount, na.rm = TRUE)) |>
+arrange(desc(total_spending))
+print(total_spending)
+```
+
+
+```{r}
+payroll_trend <- largest_spending_data |>
+  filter(purpose_clean == "salary" | purpose_clean == "payroll") |>
+  group_by(candidate) |>  
+  summarise(
+    total_payroll_spending = sum(amount),  
+    different_payroll_recipients = n_distinct(candidate) 
+  )
+
+print(payroll_trend) 
+```
+
+**Q5** What's the most interesting story idea you've found in this data?
+
+The most unique story that I have found from this data would be talking about the cities aspect of this data. I looked throughout the data, and I saw some cities that were not in the DMV area that contributed to either Alsobrooks or Hogan's campaign, and I want to look into why cities like San Francisco and Brooklyn did so. Another one could be why Hogan does not pay hsi payroll people
