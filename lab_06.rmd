@@ -1,0 +1,513 @@
+---
+title: "lab_06"
+author: "derek willis"
+date: "2024-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## You will need
+
+-   Tabula
+
+## Load libraries and establish settings
+
+```{r}
+# Turn off scientific notation
+options(scipen=999)
+
+# Load the tidyverse and any other libraries you'll need
+library(tidyverse)
+
+```
+
+## Get Our PDF
+
+We'll be working with the [Maryland monthly voter registration update](https://elections.maryland.gov/pdf/vrar/2024_09.pdf) from the State Board of Elections. You'll want to download it to a place you'll remember (like your Downloads folder, or the labs folder in your repository). The goal is to write a couple of paragraphs that summarize the changes in voter registration in Maryland during the month of September.
+
+## Setup Tabula
+
+Start Tabula, then go to <http://127.0.0.1:8080/> in your browser. Click the "Browse" button and find the PDF file and click "open", and then click the "Import button" in Tabula. This will take a few seconds.
+
+This PDF has multiple possible tables to extract. We're going to make four dataframes: 
+
+* new registrations by party
+* removals by party
+* changes in registration
+* current registrations by county.
+
+You will need to draw boxes around four sections and export four CSV files that you will load into R. In Tabula, draw a box around the borders of those tables and click the "Preview & Export Extracted Data" button for each one. The export should look pretty clean, but might be missing some column headers. You'll need to include total columns.
+
+Export each CSV (each one should be called `tabula-2024-09.csv` by default, so you should rename them for clarity) to your lab_06/data folder.
+
+From there, you will need to read in and clean up the data, and in particular the headers. You can choose to include the headers from the PDF in your exported CSV files OR to exclude them and add them when importing. The pre_lab has an example of how to do this!
+
+## Load and clean up the data in R
+
+You will need to read in and clean up the data so that it can be used for analysis. By "clean" I mean the column headers must not contain spaces and they should have meaningful names, not "x1" or something similar. The current registrations dataframe *MUST* include the county name, but should not include the columns under `Changes` and `Party Affiliation From`. How you do that is up to you (and could involve something outside R), but you can use `select()` with or without the minus sign to include or exclude certain columns. You also can use the `rename` function to, well, rename columns.
+
+
+*** I wanted to preface, I had a really hard time loading everything in the data frame and putting it together with stomach issues - which is why this is late sp I am sorry. However, I am writing this blurb so that you understand to help change everything from a charcter to a string, I used chat gpt. I had the most trouble with this, so I used it for all 8 data frames to put together. That is why there is lapply, and why it is changed to a numeric function.  
+
+```{r}
+library(dplyr) 
+
+df1 <- read.csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/data/PartyReg.csv", 
+                stringsAsFactors = FALSE)
+
+
+ddf1 <- df1 %>%
+  rename(
+    Address = "CHANGES",
+    Number = "X",
+    DEM = "Party.Affiliation.For.MD.Residents",
+    REP = X.1,
+    NLM = X.2,
+    LIB = X.3,
+    GRN = X.4,
+    UNAF = X.5, 
+    OTH = X.6,
+    TOTAL = X.7
+  )
+
+
+cols_to_convert <- c("REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL") 
+
+ddf1[cols_to_convert] <- lapply(ddf1[cols_to_convert], function(x) as.numeric(gsub(",", "", x))) 
+
+ddf1$DEM <- as.numeric(gsub(",", "", ddf1$DEM))
+
+ddf1 <- ddf1[-2, ]
+
+
+ddf1 <- ddf1[complete.cases(ddf1[, c("Address", "Number", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL")]), ] 
+
+
+colnames(ddf1) 
+
+
+(ddf1) 
+```
+
+```{r}
+# Removals
+
+library(readr)
+
+df2 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/Removals.csv") 
+
+df2 <- df2 %>%
+  rename(
+    DEM = "...2",
+    REP = "...3",
+    NLM = "...4",
+    LIB = "...5",
+    GRN = "...6",
+    UNAF = "...7",
+    OTH = "...8",
+    TOTAL = "...9"
+  )
+
+cols_to_convert <- c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL")
+
+
+df2[cols_to_convert] <- lapply(df2[cols_to_convert], function(x) as.numeric(gsub(",", "", x))) 
+
+
+df2$DEM <- as.numeric(gsub(",", "", df2$DEM))
+
+df2 <- df2[-2, ]
+
+
+df2 <- df2[complete.cases(df2[, c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL")]), ] 
+
+colnames(df2)
+
+print(df2) 
+
+```
+
+```{r}
+# Changes
+library(readr)
+
+
+df3 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/Changes.csv")
+
+df3 <- df3 %>%
+  rename(
+    Address = "CHANGES",
+    Name = "Changes",
+    DEM = "Party...4",
+    REP = "Party...5",
+    NLM = "Party...6",
+    LIB = "Party...7",
+    GRN = "Party...8",
+    UNAF = "Party...9",
+    OTH = "Party...10",
+    Total = "Total" #
+  )
+
+
+cols_to_convert <- c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "Total") 
+
+
+df3[cols_to_convert] <- lapply(df3[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+
+df3$DEM <- as.numeric(gsub(",", "", df3$DEM))
+
+
+df3$Total <- as.numeric(gsub(",", "", df3$Total)) 
+
+
+df3 <- df3[complete.cases(df3[, c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "Total")]), ] 
+
+colnames(df3)
+
+print(df3)
+
+
+```
+
+```{r}
+
+library(readr)
+library(dplyr)
+
+df4 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/data/CurrentRegistration.csv")
+
+df4 <- df4 %>% 
+  rename(
+    DEM = "...2",
+    REP = "...3",
+    NLM = "TOTAL ACTIVE REGISTRATION",
+    LIB = "...5",
+    GRN = "...6",
+    UNAF = "...7",
+    OTH = "...8",
+    TOTAL = "...9",
+    CONF_Mailing = "ACTIVITY",
+    INACTIVE = "...11"
+  ) 
+
+cols_to_convert <- c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL")
+
+df4[cols_to_convert] <- lapply(df4[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+df4$DEM <- as.numeric(gsub(",", "", df4$DEM))
+
+df4$TOTAL <- as.numeric(gsub(",", "", df4$TOTAL))
+
+df4 <- df4[complete.cases(df4[, c("DEM", "REP", "NLM", "LIB", "GRN", "UNAF", "OTH", "TOTAL")]), ]
+
+colnames(df4)
+
+print(df4)
+    
+```
+
+## Rinse, Repeat: September 2022 data
+
+Do all of that again, for the [September 2022 voter registration update](https://elections.maryland.gov/pdf/vrar/2022_09.pdf), so we can compare the two. If you've done well, this is easy: just do the same steps in Tabula, export the files and use the same code to read in and clean up the data, *just remember to give these dataframes different names* so that you can compare September 2024 to September 2022.
+
+To answer the following questions, you'll need to calculate percentages and do other calculations. Whether you do that by combining or joining dataframes or you write code to run separately on both is up to you.
+
+```{r}
+# Party registrations
+library(readr)
+library(dplyr)
+
+dF5 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/newreg2022.csv")
+
+dF5 <- dF5 %>%
+  rename(
+    Summary = "...1",
+    DEM = "...2",
+    REP = "...3",
+    WCP = "...6",
+    LIB = "...5",
+    GRN = "...4",
+    UNAF = "...7",
+    OTH = "...8",
+    TOTAL = "...9",
+    DUPS = "...10"
+  )
+
+cols_to_convert <- c("DEM", "REP","WCP", "LIB", "GRN", "UNAF", "OTH", "TOTAL") 
+
+
+dF5[cols_to_convert] <- lapply(dF5[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+dF5 <- dF5[-2, ]
+
+dF5 <- dF5[complete.cases(dF5[, c("DEM", "REP", "LIB", "WCP", "GRN", "UNAF", "OTH", "TOTAL")]), ]
+
+colnames(dF5)
+
+print(dF5)
+```
+
+```{r}
+# Removals
+library(readr)
+library(dplyr)
+
+dF6 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/removlas2022.csv")
+
+dF6 <- dF6 %>%
+  rename(
+    DEM = "Democrat",
+    REP = "Republican",
+    WCP = "WCP",
+    LIB = "Lib",
+    GRN = "Green",
+    UNAF = "Unaf",
+    OTH = "Other",
+    TOTAL = "Total"
+  )
+
+cols_to_convert <- c("DEM", "REP", "WCP", "LIB", "GRN", "UNAF", "OTH", "TOTAL")
+
+
+dF6[cols_to_convert] <- lapply(dF6[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+dF6 <- dF6[-2, ]
+
+dF6 <- dF6[complete.cases(dF6[, c("DEM", "REP", "LIB", "WCP", "GRN", "UNAF", "OTH", "TOTAL")]), ]
+
+colnames(dF6)
+
+print(dF6)
+
+```
+
+```{r}
+# Changes
+library(readr)
+dF7 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/changes2022.csv")
+dF7 <- dF7 %>%
+  rename(
+    DEM = "Party...3",
+    REP = "Party...4",
+    WCP = "Party...7",
+    LIB = "Party...6",
+    GRN = "Party...5",
+    UNAF = "Party...8",
+    OTH = "Party...9",
+    TOTAL = "Total"
+  )
+
+cols_to_convert <- c("DEM", "REP","WCP", "LIB", "GRN", "UNAF", "OTH", "TOTAL") 
+
+
+dF7[cols_to_convert] <- lapply(dF7[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+dF7 <- dF7[-2, ]
+
+dF7 <- dF7[complete.cases(dF7[, c("DEM", "REP", "LIB", "WCP", "GRN", "UNAF", "OTH", "TOTAL")]), ]
+
+colnames(dF7)
+
+print(dF7)
+
+```
+
+```{r}
+# Current registrations
+library(readr)
+
+
+dF8 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/current2022.csv")
+
+dF8 <- dF8 %>%
+  rename(
+    COUNTY = "...1",
+    DEM = "...2",
+    REP = "...3",
+    WCP = "...6",
+    LIB = "...5",
+    GRN = "...4",
+    UNAF = "...7",
+    TOTAL = "...8",
+    CONF_Mailing = "...9",
+    INACTIVE = "...10"
+  )
+
+cols_to_convert <- c("DEM", "REP", "WCP", "LIB", "GRN", "UNAF", "TOTAL", "CONF_Mailing", "INACTIVE") 
+
+
+dF8[cols_to_convert] <- lapply(dF8[cols_to_convert], function(x) as.numeric(gsub(",", "", x)))
+
+dF8 <- dF8[-2, ]
+
+dF8 <- dF8[complete.cases(dF8[, c("DEM", "REP", "LIB", "WCP", "GRN", "UNAF", "TOTAL")]), ] 
+
+colnames(dF8)
+
+print(dF8)
+
+```
+
+## Answer questions
+
+Q1. Calculate the percentage of registered Democrats, Republicans and unaffiliated voters for the entire state in September 2024 and September 2022, and then calculate the percentage change for those three party categories (the formula for percentage change is easy to remember: (New-Old)/Old). How would you describe the changes in these partisan categories in a story? What's the most interesting thing about these changes that would be the lede of that story?
+
+A1. The changes show that there was the decrease in registered voters from 2022 to 2024 besides UNA Something that is interesting is obviously the election was big this year, however less people were registered in the two main parties. That could be something to lead off of. 
+
+```{r}
+#Percent in 2024 democrats
+(2219417/4231403)*100 
+
+#Percent 2024 republicans
+(1009323/4231403)*100 
+
+#Percent 2024 unaffliated
+(923927/4231403)*100
+
+#Percent 2022 dem
+(2250961/4161637)*100
+#Percent 2022 rep
+(998905/4161637)*100
+#percent 2022 una
+(841573/4161637)*100
+
+#percent change
+(52.4-54/54)
+(23.9-24/24)
+(21.8-20.2/20.2)
+
+```
+
+Q2. Among the Maryland jurisdictions with the most registered voters, which one had the biggest percentage increase in unaffiliated voters between 2022 and 2024? How did that county vote for governor in 2022 and for president in 2020? Contrast the partisan percentages of that county with the county that had the eighth-largest percentage increase in unaffiliated voters. You should display information from the data that shows the counties with the largest percentage increase first.
+
+A2. The biggest percentage change was from PG County. They voted for Wes Moore and Joe Biden. I used ChatGPT to help with knowing how to merge and ensuring that I am running the code properly. I was not before, so it helped me switch my formatting.
+
+```{r}
+
+library(dplyr)
+
+UNAF_voters22 <- dF8 %>%
+  group_by(COUNTY) %>%
+  summarize(
+    UNAF_22 = sum(UNAF, na.rm = TRUE)
+  )
+
+UNAF_voters24 <- df4 %>%
+  group_by(COUNTY) %>%
+  summarize(
+    UNAF_24 = sum(UNAF, na.rm = TRUE)
+  )
+
+
+merged_data <- UNAF_voters22 %>%
+  left_join(UNAF_voters24, by = "COUNTY")
+
+
+percent_change <- merged_data %>%
+  mutate(Unaff_Pct_Change = ((UNAF_24 - UNAF_22) / UNAF_22) * 100) %>%
+  arrange(desc(Unaff_Pct_Change))
+
+print(percent_change)
+
+```
+
+Q3. Do the party percentages of new registrants (% Dem, % Rep, % Unaffiliated) from September 2024 and September 2022 match the overall percentage of partisan registration in the state at those times?
+
+In other words, did new registrants mirror the overall partisan composition of the electorate, or were they different? Do any of the methods of registration vary significantly from the overall partisan pattern? Which method is worthy of further exploration?
+
+A3. For starts, I used ChatGPT to help set up what I need to do and how to format, and if I needed to mutate. From what I am seeing, UNA from 2022 to 2024 went up, the total amount of voter registration went up as well, and the Republican percentage of voters went down from 2022 to 2024. It kind of varies because in the beginning, we were under the impression that nothing increased but the UNAF voters, however the Democrats showed an increase too. 
+
+```{r}
+overall_totals <- dF7 %>%
+  summarize(
+    TOTAL = sum(TOTAL, na.rm = TRUE),
+    DEM = sum(DEM, na.rm = TRUE),
+    REP = sum(REP, na.rm = TRUE),
+    UNAF = sum(UNAF, na.rm = TRUE),
+   
+  ) %>%
+  mutate(
+    Dem_Pct_2022 = (DEM / TOTAL) * 100,
+    Rep_Pct_2022 = (REP / TOTAL) * 100,
+    Unaff_Pct_2022 = (UNAF / TOTAL) * 100,
+   )
+overall_totals
+
+overall_totals24 <- ddf1 %>%
+   summarize(
+    TOTAL = sum(TOTAL, na.rm = TRUE),
+    DEM = sum(DEM, na.rm = TRUE),
+    REP = sum(REP, na.rm = TRUE),
+    UNAF = sum(UNAF, na.rm = TRUE),
+   
+  ) %>%
+  mutate(
+    Dem_Pct_2024 = (DEM / TOTAL) * 100,
+    Rep_Pct_2024 = (REP / TOTAL) * 100,
+    Unaff_Pct_2024 = (UNAF / TOTAL) * 100,
+   )
+
+overall_totals24
+
+new_registrants <- df3 %>%
+  summarize(
+    DEM = sum(DEM, na.rm = TRUE),
+    REP = sum(REP, na.rm = TRUE),
+    UNAF = sum(UNAF, na.rm = TRUE),
+    Total = sum(DEM, REP, UNAF, na.rm = TRUE)
+  ) %>%
+  mutate(
+    DEM = (DEM / Total) * 100,
+    REP = (REP / Total) * 100,
+    UNAF = (UNAF / Total) * 100
+  )
+
+new_registrants
+
+registants_2022 <- dF7 %>%
+  summarize(
+    DEM = sum(DEM, na.rm = TRUE),
+    REP = sum(REP, na.rm = TRUE),
+    UNAF = sum(UNAF, na.rm = TRUE),
+    TOTAL = sum(DEM, REP, UNAF, na.rm = TRUE)
+  ) %>%
+  mutate(
+    DEM = (DEM / TOTAL) * 100,
+    REP = (REP / TOTAL) * 100,
+    UNAF = (UNAF / TOTAL) * 100
+  )
+
+registants_2022
+
+```
+
+Q4. Choose your own adventure! Using both the 2024 and 2022 data for one of the dataframes (changes, removals or new registrations), ask and answer a question that makes at least one comparison and requires code to answer. That could involve calculating a percentage, percentage change or the raw difference between two columns.
+
+A4. New Registration - Compare the change in Republican voters from 2022 to 2024. You see increase in counties like Cecil, Dorchester, Queen Anne's and St Mary's. But decreases in Charles, Howard, and Talbot.
+
+```{r}
+REP_voters22 <- dF8 %>%
+  group_by(COUNTY) %>%
+  summarize(
+    REP_voters22 = sum(REP, na.rm = TRUE)
+  )
+
+REP_24 <- df4 %>%
+  group_by(COUNTY) %>%
+  summarize(
+    REP_24 = sum(REP, na.rm = TRUE)
+  )
+
+
+merged_data_rep <- REP_voters22 %>%
+  left_join(REP_24, by = "COUNTY")
+merged_data_rep
+```
+
+Q5. What's the best story idea or question you've seen as a result of the work you've done in this lab?
+
+A5. The best story idea that I have seen has been probably the amount of affiliated voters in PG county. I think that is interesting considering it has always known to be a pretty liberal county.
