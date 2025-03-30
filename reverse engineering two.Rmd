@@ -1,0 +1,89 @@
+---
+title: "reverse engineering"
+output: html_document
+date: "2025-03-30"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+
+
+```{r}
+library(readr)
+library(dplyr)
+voter_data <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/reverse engineering/nonvoters_data.csv")
+```
+```{r}
+voter_data |>
+  group_by(Q1) |>
+  summarize(
+    citizen_status = n()) |>
+  arrange(desc(Q1))
+```
+```{r}
+voter_data |>
+  group_by(Q2_1, Q2_2, Q2_4, Q2_5, Q2_6, Q2_7, Q2_8, Q2_9, Q2_10) |>
+  summarize(
+    election_voting = n()
+  )
+```
+```{r}
+voter_data |>
+  group_by(Q3_1, Q3_2, Q3_3, Q3_4, Q3_5, Q3_6) |>
+  summarise(election_voting = n())
+```
+```{r}
+voter_data |>
+  group_by(Q4_1, Q4_2, Q4_3, Q4_4, Q4_5,Q4_6) |>
+  summarise(election_voting= n())
+```
+
+```{r}
+voter_data |>
+  group_by(Q5) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q6) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q7) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q8_1,Q8_2,Q8_3,Q8_4, Q8_5,Q8_6,Q8_7,Q8_8,Q8_9) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q8_1,Q8_2,Q8_3,Q8_4, Q8_5,Q8_6,Q8_7,Q8_8,Q8_9) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q9_1, Q9_2, Q9_3,Q9_4) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q10_1,Q10_2,Q10_3,Q10_4) |>
+  summarise(election_voting= n())
+```
+```{r}
+voter_data |>
+  group_by(Q11_1,Q11_2,Q11_3,Q11_4,Q11_5,Q11_6) |>
+  summarise(election_voting= n())
+```
+# What I did with all of the codeblocks was grouped them by quarters, and got their election voter data.They are all grouped from Quarter one to 11.
+
+
