@@ -54,7 +54,7 @@ View(ac5)
 
 **Q1** What is the Maryland jurisdiction with the lowest median age, according to the ACS 2022 5-year estimates? You will need to find the variable for median age first.
 
-**A1** Baltimore City has the lowest median age.
+**A1** Baltimore City has the lowest median age. I USED CHAT GPT TO ENSURE I WAS USING THE RIGHT VARIABLES TO SET UP THE DATAFRAME.
 
 ```{r}
 library(tidyverse)
