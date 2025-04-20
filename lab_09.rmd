@@ -33,7 +33,7 @@ HINT: In Datawrapper's "Check and Describe" tab, you can click on a column to ge
 
 What do you think the story here is? Put the answer below along with the URL of your chart.
 
-**A1.** https://datawrapper.dwcdn.net/qENVM/1/
+**A1.** https://datawrapper.dwcdn.net/qENVM/1/ The story would be how a lot of people go out and vote rather than mail in. 
 ```{r}
 md_votes_by_type <- read_csv("data/md_votes_by_type.csv")
 ```
