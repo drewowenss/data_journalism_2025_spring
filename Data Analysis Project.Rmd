@@ -1,0 +1,49 @@
+---
+title: "data analysis"
+output: html_document
+date: "2025-04-25"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+library(tidyverse)
+library(janitor)
+install.packages("readr")
+library(readr)   
+```
+
+```{r}
+independent_expedetiures<-read.csv("independent_expenditure_2024.csv")
+independent_expedetiures |>
+  clean_names()
+
+```
+There are 23 columns and 72,971 rows. This data represents all of the independent expenditure spending by candidates/committees from 2023-2024. The sheer amount of data might be limiting because there could be errors in the data. It also accounts for all types of races, so to compare certain types of expenditure swould require a lot of filtering. Our questions might be hard to answer in terms of finding average spending because of the amount of data. Additionally, comparing geographical spending compared to other years will be hard because the dataset lacks geographical information.
+
+We're gonna need to turn the dates numerical to analyze them better. There also seems to be spelling errors after we ran clean names. We'll need to find definitions for the candidate ID, spe_id, can_office_dis, sup_opp, pur, amndt_ind, and image_num. The FEC has a github which gives many descriptions, so we'll need to input those definitions to make the data clearer.
+
+#We all worked together over zoom on this and decided what to code and what to write. 
