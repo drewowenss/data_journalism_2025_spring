@@ -34,16 +34,75 @@ library(tidyverse)
 library(janitor)
 install.packages("readr")
 library(readr)   
+library(dplyr)
 ```
 
 ```{r}
-independent_expedetiures<-read.csv("independent_expenditure_2024.csv")
-independent_expedetiures |>
-  clean_names()
+file.exists("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/data analysis project/clean names independent expenditure.csv")
+
+independent_expenditures<- read.csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/data analysis project/clean names independent expenditure.csv")
 
 ```
+
+```{r}
+independent_expenditures <- independent_expenditures |>
+  clean_names() |>
+  rename(
+    candidate_id = cand_id,
+    candidate_name = cand_name,
+    spender_id = spe_id,
+    spender_name = spe_nam,
+    election_type = ele_type,
+    candidate_state = can_office_state,
+    candidate_district = can_office_dis,
+    candidate_office = can_office,
+    candidate_party = cand_pty_aff,
+    expenditure_amount = exp_amo,
+    expenditure_date = exp_date,
+    aggregate_amount = agg_amo,
+    support_or_oppose = sup_opp,
+    purpose = pur,
+    payee = pay,
+    file_number = file_num,
+    amendment_indicator = amndt_ind,
+    transaction_id = tran_id,
+    image_number = image_num,
+    receipt_date = receipt_dat,
+    election_year = fec_election_yr,
+    previous_file_number = prev_file_num,
+    dissemination_date = dissem_dt
+  )
+```
+
+
 There are 23 columns and 72,971 rows. This data represents all of the independent expenditure spending by candidates/committees from 2023-2024. The sheer amount of data might be limiting because there could be errors in the data. It also accounts for all types of races, so to compare certain types of expenditure swould require a lot of filtering. Our questions might be hard to answer in terms of finding average spending because of the amount of data. Additionally, comparing geographical spending compared to other years will be hard because the dataset lacks geographical information.
 
 We're gonna need to turn the dates numerical to analyze them better. There also seems to be spelling errors after we ran clean names. We'll need to find definitions for the candidate ID, spe_id, can_office_dis, sup_opp, pur, amndt_ind, and image_num. The FEC has a github which gives many descriptions, so we'll need to input those definitions to make the data clearer.
 
 #We all worked together over zoom on this and decided what to code and what to write. 
+```{r}
+library(dplyr)
+library(stringr)
+```
+
+```{r}
+independent_expenditures|>
+  group_by(candidate_name) |>
+  summarise(total = sum(expenditure_amount, na.rm = TRUE)) |>
+  arrange(desc(total))
+
+```
+1. Which presidential candidates have spent the most during their campaign? Who has spent the least?
+ANSWER: JON TESTER SPENT THE MOST WHILE EIGHT CANDIDATES ARE TIED FOR LAST.
+
+
+
+```{r}
+independent_expenditures |>
+  group_by(candidate_party, expenditure_amount, purpose) |>
+  summarise(total = sum(expenditure_amount, na.rm = TRUE)) |>
+  arrange(desc(total))
+```
+2. How are Republicans and Democrats spending their money differently? What are each party’s top spending points?
+ANSWER:DEMOCRATS SPENT A LOT OF MONEY ON TELEVISION ADS AND MEDIA AND RADIO STUFF WHILE REPUBLICANS SPEND A LOT OF MONEY ON DATA HARVESTING. THE DEMS TOP SPENT WAS PLACED MEDIA: TV WHILE REPS WAS DATA HARVESTING.
+
