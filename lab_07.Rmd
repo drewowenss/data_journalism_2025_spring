@@ -103,8 +103,8 @@ library(readr)
 library(tidycensus)
 
 
-Frederick_ballots <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_07/data/frederick_cvr.csv")
-Frederick_voting <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_07/data/frederick_precincts.csv")
+Frederick_ballots <- read_csv("data/frederick_cvr.csv")
+Frederick_voting <- read_csv("data/frederick_precincts.csv")
 
 
 joined_data <- left_join(Frederick_ballots, Frederick_voting, by = "precinct")
