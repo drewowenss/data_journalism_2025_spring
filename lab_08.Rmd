@@ -37,8 +37,8 @@ You can clean up column names to make them easier to work with if you like, and 
 
 ```{r}
 # load the data
-md_absentee_ballots <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_08/data/md_absentee_ballots.csv")
-md_absentee_ballots_date<-read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_08/data/md_absentee_ballots_date.csv")
+md_absentee_ballots <- read_csv("data/md_absentee_ballots.csv")
+md_absentee_ballots_date<-read_csv("data/md_absentee_ballots_date.csv")
 
 ```
 
@@ -192,7 +192,7 @@ Follow these steps:
 4. Add a line of fit to the plot using geom_smooth (https://ggplot2.tidyverse.org/reference/geom_smooth.html#ref-examples). Specify the method as lm.
 5. In the answer space below, describe what you see. In a general sense, how would you report out the main point(s) of this chart? Are there counties that seem to be over or under-performing in relation to the overall trend?
 
-**A4.** MANY COUNTIES ARE AT THE BOTTOM OF THE CHART, WHILE MONTGOMERY IS AHEAD OF EVERYONE. MONTGOMERY IS OVER-PERFORMING, WHILE FREDERICK IS KIND OF UNDERPERFORMING. I USED CHATGPT TO HELP SPACE OUT THE COUNTIES TO MAKE THE CHART LOOK BETTER.
+**A4.** MANY COUNTIES ARE AT THE BOTTOM OF THE CHART, WHILE MONTGOMERY IS AHEAD OF EVERYONE. MONTGOMERY IS OVER-PERFORMING, WHILE FREDERICK IS KIND OF UNDERPERFORMING. I USED CHATGPT TO HELP SPACE OUT THE COUNTIES TO MAKE THE CHART LOOK BETTER. AND TO NOT HAVE IT DUPLICATE MULTIPLE COPIES OF THE COUNTIES. 
 ```{r}
 install.packages("ggrepel") 
 library(ggrepel)
@@ -200,7 +200,11 @@ library(ggrepel)
 ```
 
 ```{r}
-ggplot(plot_data, aes(x = total_sent, y = total_received)) +
+latest_data <- md_absentee_ballots_date %>%
+  group_by(county_name) %>%
+  filter(date == max(date)) %>%
+  ungroup()
+ggplot(latest_data, aes(x = total_sent, y = total_received)) +
   geom_point(color = "blue") +
   geom_text_repel(
     aes(label = county_name),
