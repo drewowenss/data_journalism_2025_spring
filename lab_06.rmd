@@ -55,7 +55,7 @@ You will need to read in and clean up the data so that it can be used for analys
 ```{r}
 library(dplyr) 
 
-df1 <- read.csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/data/PartyReg.csv", 
+df1 <- read.csv("data/PartyReg.csv", 
                 stringsAsFactors = FALSE)
 
 
@@ -97,7 +97,7 @@ colnames(ddf1)
 
 library(readr)
 
-df2 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/Removals.csv") 
+df2 <- read_csv("data/Removals.csv") 
 
 df2 <- df2 %>%
   rename(
@@ -135,7 +135,7 @@ print(df2)
 library(readr)
 
 
-df3 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/Changes.csv")
+df3 <- read_csv("data/Changes.csv")
 
 df3 <- df3 %>%
   rename(
@@ -178,7 +178,7 @@ print(df3)
 library(readr)
 library(dplyr)
 
-df4 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/data/CurrentRegistration.csv")
+df4 <- read_csv("data/CurrentRegistration.csv")
 
 df4 <- df4 %>% 
   rename(
@@ -221,7 +221,7 @@ To answer the following questions, you'll need to calculate percentages and do o
 library(readr)
 library(dplyr)
 
-dF5 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/newreg2022.csv")
+dF5 <- read_csv("data/newreg2022.csv")
 
 dF5 <- dF5 %>%
   rename(
@@ -256,7 +256,7 @@ print(dF5)
 library(readr)
 library(dplyr)
 
-dF6 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/removlas2022.csv")
+dF6 <- read_csv("data/removlas2022.csv")
 
 dF6 <- dF6 %>%
   rename(
@@ -288,7 +288,7 @@ print(dF6)
 ```{r}
 # Changes
 library(readr)
-dF7 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/changes2022.csv")
+dF7 <- read_csv("data/changes2022.csv")
 dF7 <- dF7 %>%
   rename(
     DEM = "Party...3",
@@ -321,7 +321,7 @@ print(dF7)
 library(readr)
 
 
-dF8 <- read_csv("/Users/dmowens/Documents/GitHub/data_journalism_2025_spring/labs/lab_06/current2022.csv")
+dF8 <- read_csv("data/current2022.csv")
 
 dF8 <- dF8 %>%
   rename(
