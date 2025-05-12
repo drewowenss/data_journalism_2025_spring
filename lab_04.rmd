@@ -65,7 +65,7 @@ Largest amount of spending for Alsobrooks was media, while largest for Hogan was
 library(dplyr)
 library(readr)
 
-largest_spending_data <- read_csv("data/new data.csv")
+largest_spending_data <- read_csv("data/new_data.csv")
 top_spending <- largest_spending_data |>
   group_by(purpose_clean, candidate) |>
   summarise(total_amount = sum(amount, na.rm = TRUE)) |>
@@ -83,7 +83,7 @@ I read something from the Maryland reporter, and it spoke about how Angela tried
 To preferace again, I used ChatGPT to help me. What it told me to do was group it by media and ads because those were the top two categories. Then it said to mutate by date because we are trying to figure out the spending each month. So what it told me to do is group by the candidate which would be Alsobrooks and Hogan and summarise by how much each candidate spent per month. After I got this date, I can see for media for Alsobrooks, she spent the most amount on media in April. In May and June, it went down a tad, however she saw a big drop from October to November. She kept growing each month, but there was a drop in 2023. After, she increased in December and January, with her biggest month of money spent being in April. As far as Hogan, he really did not do much of his ad campaigning until 2024. He seemingly spent his most money in May. Besides a drop in June, he keeps increasing his money throughout his campaign. 
 
 ```{r}
-media <- read_csv("data/new data.csv")
+media <- read_csv("data/new_data.csv")
 media <- media |>
   mutate(date = ymd(date))
 longing_media <- media |>
@@ -93,7 +93,7 @@ longing_media <- media |>
   arrange(desc(month))
 print(longing_media)
 
-ads <- read_csv("data/new data.csv")
+ads <- read_csv("data/new_data.csv")
 ads <- ads |>
   mutate(date = ymd(date))
 po_ads <- ads |>
